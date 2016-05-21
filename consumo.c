@@ -45,9 +45,9 @@ void* looping(void *arg) {
 	Reference: http://linux.die.net/man/2/getrusage
 */
 int main(int argc, char *argv[]) {
-	if (argc < 4) {
+	if (argc < 8) {
 		printf("USAGE:\n");
-		printf("./a.out $ID $N_F1 $N_F2 $N_F3 $N_F4\n");
+		printf("./a.out $ID $PRINT_INTERVAL $DATA $N_F1 $N_F2 $N_F3 $N_F4\n");
 		return 1;
 	}
 
@@ -57,12 +57,15 @@ int main(int argc, char *argv[]) {
 	float etime, utime, stime, pcpu;
 
 	char *ID = argv[1];
+	size_t PRINT_INTERVAL = atoi(argv[2]);
+	size_t DATA = atoi(argv[3]);
+
 	int n_threads = 0;
 	int n_threads_type[N_TYPES];
 	void* (*fns[N_TYPES])(void*) = { looping, NULL, NULL, NULL };
 
 	for (int i = 0; i < N_TYPES; ++i) {
-		n_threads_type[i] = atoi(argv[i+2]);
+		n_threads_type[i] = atoi(argv[i+4]);
 		n_threads += n_threads_type[i];
 	}
 
@@ -71,7 +74,7 @@ int main(int argc, char *argv[]) {
 	int pos = 0;
 	for (int i = 0; i < N_TYPES; ++i) {
 		for (int j = 0; j < n_threads_type[i]; ++j) {
-			if (pthread_create(&threads[pos++], NULL, fns[i], (void*) 20)) {
+			if (pthread_create(&threads[pos++], NULL, fns[i], (void*) DATA)) {
 				return 1;
 			}
 		}
@@ -84,7 +87,7 @@ int main(int argc, char *argv[]) {
 		// Verifica o consumo de recursos at� o bloco de código sendo medido
 		getrusage(RUSAGE_SELF, &ru_i);
 
-		sleep(1);
+		sleep(PRINT_INTERVAL);
 
 		// Verifica o instante atual logo depois do bloco de código sendo medido
 		gettimeofday(&fim, 0);
@@ -99,13 +102,10 @@ int main(int argc, char *argv[]) {
 		stime = sec(ru_f.ru_stime) - sec(ru_i.ru_stime);
 
 		// porcentagem de uso da CPU: (utime + stime) / etime;
-		pcpu = (utime + stime) / etime * 100; // *100 ???
+		pcpu = (utime + stime) / etime; // *100 ???
 
-		printf("Process ID: %s\n", ID);
-		printf("Tempo decorrido: %f s\n", etime);
-		printf("User time: %f s\n", utime);
-		printf("System time: %f s\n", stime);
-		printf("Porcentagem de uso da cpu: %f %% \n\n", pcpu);
+		// ID, etime, utime, stime, pcpu, pcpu_per_thread
+		printf("%s %f %f %f %f %f\n", ID, etime, utime, stime, pcpu, pcpu/n_threads);
 		fflush(stdout);
 	}
 
