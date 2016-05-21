@@ -57,7 +57,7 @@ void* sorting(void *arg) {
 	qsort(vet, n, sizeof(int), comp_int);
 
 	free(vet);
-
+	
 	return NULL;
 }
 
@@ -67,8 +67,7 @@ void* writing_to_file(void *arg) {
 	size_t tid = (size_t) pthread_self();
 	sprintf(filename, "tmp%lu", tid);
 
-	// Source: http://stackoverflow.com/a/13079722/6278885
-	FILE *file = open(filename, O_DSYNC | O_RSYNC);
+	FILE *file = fopen(filename, "w+");
 	size_t n = (size_t) arg;
 
 	for (int i = 0; i < n; ++i) fprintf(file, "%d\n", rand() % 100000);
