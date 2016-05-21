@@ -142,6 +142,8 @@ int main(int argc, char *argv[]) {
 		// porcentagem de uso da CPU: (utime + stime) / etime;
 		pcpu = (utime + stime) / etime; // *100 ???
 
+		// TODO pcpu/n_threads não é confiável: deve-se levar em consideração
+		// quantas threads estão ativas
 		// ID, etime, utime, stime, pcpu, pcpu_per_thread
 		printf("%s %f %f %f %f %f\n", ID, etime, utime, stime, pcpu, pcpu/n_threads);
 		fflush(stdout);
