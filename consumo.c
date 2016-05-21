@@ -21,11 +21,12 @@
 #include <stdio.h>
 #include <pthread.h>
 #include <stdlib.h>
+#include <string.h>
 // #include <sched.h>
 
 #define sec(t) (t.tv_sec + (t.tv_usec/1000000.))
 
-#define N_TYPES 1
+#define N_TYPES 3
 
 /*
 	arg é tratado como um size_t N
@@ -36,6 +37,43 @@ void* looping(void *arg) {
 
 	for (int i = 0; i < n; i++)
 		for (int j = 0; j < n; j++);
+
+	return NULL;
+}
+
+int comp_int (const void* p1, const void* p2) {
+	int v1 = *((int*) p1);
+	int v2 = *((int*) p2);
+
+	return v1 < v2;
+}
+
+void* sorting(void *arg) {
+	size_t n = (size_t) arg;
+	int *vet = (int*) malloc(n * sizeof(int));
+
+	for (int i = 0; i < n; ++i) vet[i] = rand() % 100000;
+
+	qsort(vet, n, sizeof(int), comp_int);
+
+	free(vet);
+	
+	return NULL;
+}
+
+void* writing_to_file(void *arg) {
+	char filename[20];
+	strcpy(filename, "tmp");
+	size_t tid = (size_t) pthread_self();
+	sprintf(filename, "tmp%lu", tid);
+
+	FILE *file = fopen(filename, "w+");
+	size_t n = (size_t) arg;
+
+	for (int i = 0; i < n; ++i) fprintf(file, "%d\n", rand() % 100000);
+
+	fclose(file);
+	remove(filename);
 
 	return NULL;
 }
@@ -62,7 +100,7 @@ int main(int argc, char *argv[]) {
 
 	int n_threads = 0;
 	int n_threads_type[N_TYPES];
-	void* (*fns[N_TYPES])(void*) = { looping, NULL, NULL, NULL };
+	void* (*fns[N_TYPES])(void*) = { looping, sorting, writing_to_file, NULL };
 
 	for (int i = 0; i < N_TYPES; ++i) {
 		n_threads_type[i] = atoi(argv[i+4]);
