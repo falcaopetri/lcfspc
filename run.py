@@ -27,6 +27,8 @@ labels = [ "Process ID", "Tempo decorrido", "User time", "System time",
 
 n_active_processes = len(processes)
 
+output_file = open("output.csv", "w")
+
 # Reference: http://www.cyberciti.biz/faq/python-run-external-command-and-get-output/
 while n_active_processes != 0:
     for process in processes:
@@ -39,6 +41,10 @@ while n_active_processes != 0:
 
         if output:
             values = output.strip().split(" ")
+            output_file.write(values[5])
+            output_file.write(",")
 
             for i in range(len(labels)):
                 print "{}: {}".format(labels[i], values[i])
+    output_file.write("\n")
+    output_file.flush()
