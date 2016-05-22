@@ -7,9 +7,11 @@ import signal
 import atexit
 from threading import Timer
 
-with open("example.cfg") as f:
+# TODO pass config by command line
+with open("load_test.cfg") as f:
     config = json.load(f)
 
+# TODO change executable name to a more suitable one
 exe = "./a.out"
 args = "{} {} {} {} {} {} {}"
 cmd = "{} " + args
@@ -29,8 +31,8 @@ def run_subprocess(process_cfg):
     process.id = id
     processes.append(process)
 
-labels = [ "Process ID", "Tempo decorrido", "User time", "System time",
-                "Porcentagem de uso da cpu", "Porcentagem de uso da cpu por thread" ]
+# labels = [ "Process ID", "Tempo decorrido", "User time", "System time",
+#                 "Porcentagem de uso da cpu", "Porcentagem de uso da cpu por thread" ]
 files_labels = [ "run", "user", "system", "percentage" ]
 
 output_directory = "output"
@@ -45,6 +47,7 @@ n_processes = len(config["processes"])
 iteration = 0
 
 timers = []
+
 # Source: http://stackoverflow.com/a/19448255/6278885
 def kill_child():
     for process in processes:
