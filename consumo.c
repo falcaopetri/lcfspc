@@ -41,11 +41,14 @@ void* looping(void *arg) {
 	return NULL;
 }
 
-int comp_int (const void* p1, const void* p2) {
+int comp_int(const void* p1, const void* p2) {
 	int v1 = *((int*) p1);
 	int v2 = *((int*) p2);
 
-	return v1 < v2;
+	if (v1 < v2) return -1;
+	if (v1 == v2) return 0;
+
+	return 1;
 }
 
 void* sorting(void *arg) {
@@ -57,7 +60,7 @@ void* sorting(void *arg) {
 	qsort(vet, n, sizeof(int), comp_int);
 
 	free(vet);
-	
+
 	return NULL;
 }
 
