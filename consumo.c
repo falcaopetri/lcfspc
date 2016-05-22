@@ -22,15 +22,14 @@
 #include <pthread.h>
 #include <stdlib.h>
 #include <string.h>
-// #include <sched.h>
 
 #define sec(t) (t.tv_sec + (t.tv_usec/1000000.))
 
-#define N_TYPES 3
+#define N_FN_TYPES 3
 
 /*
-	arg é tratado como um size_t N
-	A função executa um loop N^2 vezes e executa um exit(0)
+	arg is treated as a size_t N
+	this functions executes an empty loop N^2 times
 */
 void* looping(void *arg) {
 	size_t n = (size_t) arg;
@@ -41,6 +40,9 @@ void* looping(void *arg) {
 	return NULL;
 }
 
+/*
+	Reference: http://www.cplusplus.com/reference/cstdlib/qsort/
+*/
 int comp_int(const void* p1, const void* p2) {
 	int v1 = *((int*) p1);
 	int v2 = *((int*) p2);
@@ -51,6 +53,10 @@ int comp_int(const void* p1, const void* p2) {
 	return 1;
 }
 
+/*
+	arg is treated as a size_t N
+	Sorts an array of size N, with random values in range [0, 100000)
+*/
 void* sorting(void *arg) {
 	size_t n = (size_t) arg;
 	int *vet = (int*) malloc(n * sizeof(int));
@@ -64,6 +70,12 @@ void* sorting(void *arg) {
 	return NULL;
 }
 
+/*
+	arg is treated as a size_t N
+	Writes to a file called "tmp" + ID N random numbers
+	Deletes file from disk after finished
+	TODO force disk syncing, maybe with open() from fcntl.h
+*/
 void* writing_to_file(void *arg) {
 	char filename[20];
 	strcpy(filename, "tmp");
@@ -84,6 +96,9 @@ void* writing_to_file(void *arg) {
 /*
 	int getrusage(int who, struct rusage *usage);
 	Reference: http://linux.die.net/man/2/getrusage
+
+	TODO N_F4 not currently used
+	Maybe some system-call based function, or a mixed one?
 */
 int main(int argc, char *argv[]) {
 	if (argc < 8) {
@@ -102,18 +117,19 @@ int main(int argc, char *argv[]) {
 	size_t DATA = atoi(argv[3]);
 
 	int n_threads = 0;
-	int n_threads_type[N_TYPES];
-	void* (*fns[N_TYPES])(void*) = { looping, sorting, writing_to_file, NULL };
+	int n_threads_type[N_FN_TYPES];
+	void* (*fns[N_FN_TYPES])(void*) = { looping, sorting, writing_to_file, NULL };
 
-	for (int i = 0; i < N_TYPES; ++i) {
+	for (int i = 0; i < N_FN_TYPES; ++i) {
 		n_threads_type[i] = atoi(argv[i+4]);
 		n_threads += n_threads_type[i];
 	}
 
 	pthread_t threads[n_threads];
 
+	// Creates the number of specified threads of each type
 	int pos = 0;
-	for (int i = 0; i < N_TYPES; ++i) {
+	for (int i = 0; i < N_FN_TYPES; ++i) {
 		for (int j = 0; j < n_threads_type[i]; ++j) {
 			if (pthread_create(&threads[pos++], NULL, fns[i], (void*) DATA)) {
 				return 1;
