@@ -80,7 +80,7 @@ for i in range(len(config["processes"])):
 # TODO exit after all processes have finished
 # Reference: http://www.cyberciti.biz/faq/python-run-external-command-and-get-output/
 while True:
-    ordered_buff = [["0"] * n_processes] * n_files
+    ordered_buff = [ ["0" for i in range(n_processes)] for j in range(n_files) ]
 
     for process in processes:
         output = process.stdout.readline()
