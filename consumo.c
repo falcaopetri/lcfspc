@@ -75,6 +75,7 @@ void* sorting(void *arg) {
 	Writes to a file called "tmp" + ID N random numbers
 	Deletes file from disk after finished
 	TODO force disk syncing, maybe with open() from fcntl.h
+	TODO (size_t) pthread_self() is not a good idea
 */
 void* writing_to_file(void *arg) {
 	char filename[20];
@@ -159,7 +160,7 @@ int main(int argc, char *argv[]) {
 		stime = sec(ru_f.ru_stime) - sec(ru_i.ru_stime);
 
 		// porcentagem de uso da CPU: (utime + stime) / etime;
-		pcpu = (utime + stime) / etime; // *100 ???
+		pcpu = (utime + stime) / etime;
 
 		// TODO pcpu/n_threads não é confiável: deve-se levar em consideração
 		// quantas threads estão ativas
